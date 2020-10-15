@@ -87,10 +87,18 @@ client.connect(err => {
             })
         })
 
-        // app.patch('/id',(req, res)=>{
-        //     const id = req.query.id;
-        //     console.log(id)
-        // })
+        app.patch('/id',(req, res)=>{
+            const id = req.query.id;
+            const body = req.body;
+            const {status} = body;
+            orderedCollection.updateOne(
+                { _id: ObjectId(id) },
+                {
+                  $set: { status: status},
+                }
+            )
+            .then(result => console.log(result))
+        })
 
 
         app.get('/servicelist',(req, res)=>{
@@ -119,13 +127,15 @@ client.connect(err => {
         }) 
 
         app.post('/adminlogin',(req, res)=>{
-        
           adminlogin.insertOne(req.body)
+          .then(result =>{
+              res.send(result.insertedCount>0)
+          })
         })
 
         app.get('/getAdmin',(req, res)=>{
             const email = req.query.email;
-            console.log(email)
+          
             adminlogin.find({adminEmail: email})
             .toArray((err,documents)=>{
                 if(documents.length>0){
