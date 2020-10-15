@@ -26,6 +26,7 @@ client.connect(err => {
   const worksCollection = client.db("creativeAgencyss").collection("works");
   const clientCollection = client.db("creativeAgencyss").collection("client");
   const orderedCollection = client.db("creativeAgencyss").collection("ordered");
+  const adminlogin = client.db("creativeAgencyss").collection("admin");
     
     app.get('/services',(req, res)=>{
        
@@ -116,6 +117,25 @@ client.connect(err => {
             })
 
         }) 
+
+        app.post('/adminlogin',(req, res)=>{
+        
+          adminlogin.insertOne(req.body)
+        })
+
+        app.get('/getAdmin',(req, res)=>{
+            const email = req.query.email;
+            console.log(email)
+            adminlogin.find({adminEmail: email})
+            .toArray((err,documents)=>{
+                if(documents.length>0){
+                    res.send(true)
+                }
+                else{
+                    res.send(false)
+                }
+            })
+        })
      
       
 
