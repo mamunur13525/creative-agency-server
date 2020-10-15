@@ -4,6 +4,7 @@ const port = 5000
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const {  ObjectId } = require('mongodb')
+const fileUpload = require('express-fileUpload');
 
 require('dotenv').config()
 
@@ -14,6 +15,8 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static('agency'));
+app.use(fileUpload());
 
 
 const client = new MongoClient(uri, { useNewUrlParser: true,useUnifiedTopology: true  });
@@ -22,6 +25,7 @@ client.connect(err => {
   const servicesCollection = client.db("creativeAgencyss").collection("services");
   const worksCollection = client.db("creativeAgencyss").collection("works");
   const clientCollection = client.db("creativeAgencyss").collection("client");
+  const orderedCollection = client.db("creativeAgencyss").collection("ordered");
     
     app.get('/services',(req, res)=>{
        
@@ -38,6 +42,15 @@ client.connect(err => {
     })
             })
 
+            app.post('/client',(req, res)=>{
+                const reviews = req.body;
+                clientCollection.insertOne(reviews)
+                .then(result=> {
+                    res.send(result.insertedCount> 0)
+                })
+    
+            })
+    
             app.get('/clientFeedback',(req, res)=>{
              
                 clientCollection.find({})
@@ -46,14 +59,65 @@ client.connect(err => {
                 })
             })
 
+
+
+
             app.get('/id',(req, res)=>{
                 const id = req.query.id;
-                console.log(id)
                 servicesCollection.find({_id: ObjectId(id)})
                 .toArray((err,document)=>{
                     res.send(document[0])
                 })
             })
+    
+            /* Order collection */
+        app.post('/ordered',(req, res)=>{
+            const order = req.body;
+    
+            orderedCollection.insertOne(order)
+            .then(result => {
+                res.send(result.insertedCount>0)
+            })
+        })
+        app.get('/admin/allservices',(req, res)=>{
+            orderedCollection.find({})
+            .toArray((err, documents)=>{
+                res.send(documents)
+            })
+        })
+
+        // app.patch('/id',(req, res)=>{
+        //     const id = req.query.id;
+        //     console.log(id)
+        // })
+
+
+        app.get('/servicelist',(req, res)=>{
+            const email = req.query.email;
+            orderedCollection.find({email: email})
+            .toArray((err,documents)=>{
+                res.send(documents)
+            })
+        })
+
+        app.post('/addAService',(req, res)=>{
+            const file = req.files.file
+            const title = req.body.title
+            const description = req.body.description
+            const fileName = file.name;
+      
+            servicesCollection.insertOne({fileName,title,description})
+            file.mv(`${__dirname}/agency/${file.name}`,err=>{
+                if(err){
+                    console.log(err)
+                    return res.status(500).send({msg:'failed to upload '})
+                }
+               return res.send({name:file.name, path:`/${file.name}`})
+            })
+
+        }) 
+     
+      
 
 });
 
