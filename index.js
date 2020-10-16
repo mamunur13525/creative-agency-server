@@ -15,6 +15,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static('agency'));
 // Enable file upload using express-fileupload
 app.use(fileUpload({
     createParentPath: true
