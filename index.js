@@ -4,6 +4,7 @@ const port = 5000
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const {  ObjectId } = require('mongodb')
+const fileUpload = require('express-fileUpload');
 
 require('dotenv').config()
 
@@ -14,8 +15,8 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 app.use(cors())
 app.use(bodyParser.json())
-// app.use(express.static('agency'));
-// app.use(fileUpload());
+app.use(express.static('agency'));
+app.use(fileUpload());
 
 
 const client = new MongoClient(uri, { useNewUrlParser: true,useUnifiedTopology: true  });
