@@ -10,7 +10,7 @@ require("dotenv").config();
 
 const MongoClient = require("mongodb").MongoClient;
 const uri =
-  "mongodb+srv://creativeAgencyUser:d1I0vBnQPQPM5tod@creativeagency.vucvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  `mongodb+srv://creativeAgencyUser:${process.env.DB_USER}@${process.env.DB_PASS}.vucvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 app.use(cors());
 app.use(bodyParser.json());
