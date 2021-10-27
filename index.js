@@ -50,7 +50,7 @@ client.connect((err) => {
     });
   });
   app.delete("/delete_service/:id", (req, res) => {
-    console.log(req.params.id);
+  
     servicesCollection.deleteOne(
       { _id: ObjectId(req.params.id) },
       function (err, result) {
@@ -65,8 +65,36 @@ client.connect((err) => {
 
   app.get("/works", (req, res) => {
     worksCollection.find({}).toArray((err, documents) => {
-      res.send(documents);
+      
+      res.send({status:'success',result:documents});
     });
+  });
+
+  app.post("/add-works", (req, res) => {
+    const file = req.files.file;
+    const fileName = file.name;
+   
+    worksCollection.insertOne({ fileName });
+    file.mv(`${__dirname}/agency/${file.name}`, (err) => {
+      if (err) {
+        return res.status(500).send({ msg: "failed to upload " });
+      }
+      return res.send({ name: fileName, path: `/${file.name}` });
+    });
+  });
+
+  
+  app.delete("/delete_work/:id", (req, res) => {
+    worksCollection.deleteOne(
+      { _id: ObjectId(req.params.id) },
+      function (err, result) {
+        if (result.deletedCount > 0) {
+          res.send({ status: true, message: "Successfully Delete One" });
+        } else {
+          res.send({ status: false, message: err });
+        }
+      }
+    );
   });
 
   app.post("/client", (req, res) => {
@@ -83,7 +111,6 @@ client.connect((err) => {
   });
 
   app.delete("/delete_client_review/:id", (req, res) => {
-    console.log(req.params.id);
     clientReviews.deleteOne(
       { _id: ObjectId(req.params.id) },
       function (err, result) {
@@ -96,8 +123,8 @@ client.connect((err) => {
     );
   });
 
-  app.get("/id", (req, res) => {
-    const id = req.query.id;
+  app.get("/orderList/:id", (req, res) => {
+    const id = req.params.id;
     orderedCollection.find({ _id: ObjectId(id) }).toArray((err, document) => {
       res.send(document[0]);
     });
@@ -152,7 +179,7 @@ client.connect((err) => {
     servicesCollection.insertOne({ fileName, title, description });
     file.mv(`${__dirname}/agency/${file.name}`, (err) => {
       if (err) {
-        console.log(err);
+       
         return res.status(500).send({ msg: "failed to upload " });
       }
       return res.send({ name: file.name, path: `/${file.name}` });
@@ -160,7 +187,7 @@ client.connect((err) => {
   });
 
   app.delete("/delete_admin/:id", (req, res) => {
-    console.log(req.params.id);
+   
     adminloginCollection.deleteOne(
       { _id: ObjectId(req.params.id) },
       function (err, result) {
@@ -173,7 +200,7 @@ client.connect((err) => {
     );
   });
   app.post("/adminlogin", (req, res) => {
-    console.log(req.body.adminEmail);
+   
     adminloginCollection
       .find({ adminEmail: req.body.adminEmail })
       .toArray((err, documents) => {
@@ -200,7 +227,7 @@ client.connect((err) => {
       });
   });
   app.get("/all-admin", (req, res) => {
-    console.log("hit api");
+   
     adminloginCollection.find({}).toArray((err, documents) => {
       if (err === null) {
         res.send({
